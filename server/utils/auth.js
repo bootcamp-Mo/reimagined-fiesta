@@ -1,36 +1,8 @@
-const jwt = require('jsonwebtoken')
-const { AuthenticationError } = require('apollo-server-express')
-const bcrypt = require('bcrypt')
-require('dotenv').config()
+const jwt = require('jsonwebtoken');
 
 // set token secret and expiration date
-const secret = process.env.JWT_SECRET
-const expiration = '2h'
-
-
-const authMiddleware = (context) => {
-  const authorization = context.req.headers.authorization
-
-  if (authorization) {
-    const token = authorization.replace('Bearer', '')
-    if (token) {
-      try {
-        const { data } = jwt.verify(token, secret, { maxAge: expiration });
-        req.user = data;
-      } catch {
-        console.log('Invalid token');
-        return res.status(400).json({ message: 'invalid token!' });
-      }
-      next()
-    }
-    throw new AuthenticationError('Authorization header needs to be provided')
-  }
-
-}
-module.exports = authMiddleware
-
-
-
+const secret = 'mysecretsshhhhh';
+const expiration = '2h';
 
 module.exports = {
   // function for our authenticated routes
@@ -44,7 +16,7 @@ module.exports = {
     }
 
     if (!token) {
-      return res.status(400).json({ message: 'You have no token!' });
+      throw new AuthenticationError('You have no token!');
     }
 
     // verify token and get user data out of it
@@ -52,8 +24,7 @@ module.exports = {
       const { data } = jwt.verify(token, secret, { maxAge: expiration });
       req.user = data;
     } catch {
-      console.log('Invalid token');
-      return res.status(400).json({ message: 'invalid token!' });
+      throw new AuthenticationError('Invalid token!');
     }
 
     // send to next endpoint
